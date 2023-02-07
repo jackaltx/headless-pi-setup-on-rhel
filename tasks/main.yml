@@ -1,0 +1,14 @@
+---
+
+- include_tasks: download.yml
+- include_tasks: set_img_name.yml
+- include_tasks: mount_image.yml
+
+# the configuration part
+- include_tasks: enable_ssh.yml
+#- include_tasks: enable_cgroup.yml
+#- include_tasks: enable_64bit.yml
+
+
+- include_tasks: umount_image.yml
+- include_tasks: clean_up.yml
