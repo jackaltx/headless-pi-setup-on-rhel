@@ -8,23 +8,29 @@
       state: directory
       mode: '0755'
 
-  - name: Download pi image
-    ansible.builtin.get_url:
-      url: "{{ pi_image_url }}/{{ pi_image_name }}"
-      dest: "{{ pi_image_dir }}/{{ pi_image_name }}.zip"
-      mode: '0644'
+  # - name: Download pi image
+  #   ansible.builtin.get_url:
+  #     url: "{{ pi_image_url }}"
+  #     dest: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
+  #     mode: '0644'
+
+  # - name: Unarchive pi image
+  #   ansible.builtin.unarchive:
+  #     src: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
+  #     dest: "{{ pi_image_dir }}"
+  #   register: unarchive_result
 
   - name: Unarchive pi image
-    ansible.builtin.unarchive:
-      src: "{{ pi_image_dir }}/{{ pi_image_name }}.zip"
-      dest: "{{ pi_image_dir }}"
-    register: unzip_result
+      shell: "unxz {{ pi_image_name }}.xz"
+      args:
+        chdir: "{{ oracle_home }}"
+      register: unarchive_result
 
-  - name: unzip results
+  - name: Debug Unarchive results
     ansible.builtin.debug:
       var: unzip_result.extract_results
       verbosity: 1
-    when: unzip_result is defined
+    when: unarchive_result is defined
 
   tags:
     - download

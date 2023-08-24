@@ -1,7 +1,7 @@
 # headless-pi-setup-on-centos8
 Transform raspi os to a headless boot for PiFarm use
 
-## Insprired by
+## Inspired by
 
 1. https://github.com/nihalgonsalves/headless-pi-setup
 1. https://github.com/perrygeo/raspberry_pi

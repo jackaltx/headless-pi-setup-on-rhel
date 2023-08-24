@@ -1,5 +1,11 @@
 ---
 
+
+- name: Display original cmdline.txt
+  debug: 
+    msg: "{{ lookup('/tmp/pi_image/boot/cmdline.txt', ca_certificate_file) }}"
+
+
 - name: Enable cgroup on Pi
   ansible.builtin.copy:
     src: cmdline_cgroup.txt
