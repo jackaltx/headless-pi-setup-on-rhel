@@ -1,18 +1,28 @@
 ---
 
+- block:
 
-- name: Display original cmdline.txt
-  debug: 
-    msg: "{{ lookup('/tmp/pi_image/boot/cmdline.txt', ca_certificate_file) }}"
+  - name: get contents of original cmdline.txt
+    set_fact: 
+      orig_cmdline: "{{ lookup('ansible.builtin.file', '/tmp/pi_image/boot/cmdline.txt') }}"
+
+  - name: Display original cmdline.txt
+    ansible.builtin.debug: 
+      # msg: "{{ lookup('ansible.builtin.file', '/tmp/pi_image/boot/cmdline.txt') }}"
+      var: orig_cmdline
 
 
-- name: Enable cgroup on Pi
-  ansible.builtin.copy:
-    src: cmdline_cgroup.txt
-    dest: "{{ pi_image_boot_mount }}/cmdline.txt"
-    mode: '0644'
-  when: pi_image_setup_cgroup is defined and pi_image_setup_cgroup is True
-  become: True
+  # - name: Enable cgroup on Pi
+  #   ansible.builtin.copy:
+  #     src: cmdline_cgroup.txt
+  #     dest: "{{ pi_image_boot_mount }}/cmdline.txt"
+  #     mode: '0644'
+  #   when: pi_image_setup_cgroup is defined and pi_image_setup_cgroup is True
+  #   become: True
+  #   tags:
+  #     - configure
+  #     - all
+
   tags:
     - configure
     - all

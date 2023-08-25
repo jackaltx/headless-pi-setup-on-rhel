@@ -1,14 +1,34 @@
 ---
 
-- include_tasks: download.yml
-- include_tasks: set_img_name.yml
-- include_tasks: mount_image.yml
+- include_tasks: 
+    file: download.yml
+  tags: [download,all]
+
+- include_tasks: 
+    file: set_img_name.yml
+  tags: [mount,umount,all]
+
+- include_tasks: 
+    file: mount_image.yml
+  tags: [mount,all]
 
 # the configuration part
-- include_tasks: enable_ssh.yml
-#- include_tasks: enable_cgroup.yml
+- include_tasks: 
+    file: enable_ssh.yml
+  tags: [configure,all]
+
+- include_tasks: 
+    file: enable_cgroup.yml
+  tags: [configure,all]
+
 #- include_tasks: enable_64bit.yml
 
 
-- include_tasks: umount_image.yml
-- include_tasks: clean_up.yml
+- include_tasks: 
+    file: umount_image.yml
+  tags: [umount,all]
+
+- include_tasks: 
+    file: clean_up.yml
+  tags: [never,cleanup]
+

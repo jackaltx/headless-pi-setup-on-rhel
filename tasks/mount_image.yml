@@ -36,8 +36,7 @@
     ansible.builtin.command:
       cmd: "/usr/sbin/kpartx -asv {{ pi_os_image }}"
     register: kpartx_result
-    become: yes
-    when: mapping_exists.stat.exists os False
+    when: not mapping_exists.stat.exists
 
   - name: kpartx results
     ansible.builtin.debug:

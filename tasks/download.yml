@@ -14,23 +14,23 @@
   #     dest: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
   #     mode: '0644'
 
-  # - name: Unarchive pi image
-  #   ansible.builtin.unarchive:
-  #     src: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
-  #     dest: "{{ pi_image_dir }}"
-  #   register: unarchive_result
+  - name: Check that the archive exists
+    stat:
+      path: "{{ pi_image_dir }}/{{ pi_image_name }}"
+    register: stat_result
 
   - name: Unarchive pi image
-      shell: "unxz {{ pi_image_name }}.xz"
-      args:
-        chdir: "{{ oracle_home }}"
-      register: unarchive_result
+    ansible.builtin.shell: "unxz {{ pi_image_name }}.xz"
+    args:
+      chdir: "{{ pi_image_dir }}"
+    register: xz_results
+    when: not stat_result.stat.exists
 
   - name: Debug Unarchive results
     ansible.builtin.debug:
-      var: unzip_result.extract_results
+      var: xz_results
       verbosity: 1
-    when: unarchive_result is defined
+    when: xz_results is defined
 
   tags:
     - download
