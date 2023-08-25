@@ -1,5 +1,29 @@
 # headless-pi-setup-on-centos8
-Transform raspi os to a headless boot for PiFarm use
+This role will download the RaspiOS imange and tranform it into a headless boot for PiFarm use.
+
+This role executes on the local machine (in my case the farmer).
+
+
+- create a playbook that will use this role
+
+```
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  roles:
+    - headless-pi-setup
+```
+
+Sample executions
+
+- ansible-playbook headless-setup.yml  -K 
+- ansible-playbook headless-setup.yml  -K --tags umount
+- ansible-playbook headless-setup.yml  -K --tags mount
+
+
 
 ## Inspired by
 
