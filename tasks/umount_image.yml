@@ -27,6 +27,16 @@
     ansible.builtin.file:
       path: "{{ pi_image_rootfs_mount }}"
       state: absent
+      
+  - name: Remove the boot mount directory if it does not exist
+    ansible.builtin.file:
+      path: "{{ pi_image_boot_mount }}"
+      state: absent
+
+  - name: Remove a rootfs if it does not exist
+    ansible.builtin.file:
+      path: "{{ pi_image_rootfs_mount }}"
+      state: absent
 
   - name: Remove the loop from the image file
     ansible.builtin.command:

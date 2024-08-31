@@ -8,19 +8,27 @@
       state: directory
       mode: '0755'
 
-  # - name: Download pi image
-  #   ansible.builtin.get_url:
-  #     url: "{{ pi_image_url }}"
-  #     dest: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
-  #     mode: '0644'
+  - name: Download pi image
+    ansible.builtin.get_url:
+      url: "{{ pi_image_url }}"
+      dest: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
+      mode: '0644'
+      
+  tags:
+    - download
+    - all
 
-  - name: Check that the archive exists
+
+# do this when download. assume all ok otherwise  (AAHHHHHH)
+- block:
+
+  - name: Check that the archive exists (with xz)
     stat:
-      path: "{{ pi_image_dir }}/{{ pi_image_name }}"
+      path: "{{ pi_image_dir }}/{{ pi_image_name }}.xz"
     register: stat_result
 
   - name: Unarchive pi image
-    ansible.builtin.shell: "unxz {{ pi_image_name }}.xz"
+    ansible.builtin.shell: "xz -d {{ pi_image_name }}.xz"
     args:
       chdir: "{{ pi_image_dir }}"
     register: xz_results

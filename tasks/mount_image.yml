@@ -25,52 +25,55 @@
 # mount -v -o offset=$boot_byte_offset,sizelimit=$boot_sizelimit -t auto $raspbian $PI_BOOT_MOUNT
 # mount -v -o offset=$os_byte_offset,sizelimit=$os_sizelimit -t auto $raspbian $PI_OS_MOUNT
 
+
 - block:
 
-  - name: check if /dev/mapper/loop0p1 file exists
-    stat: 
-      path: /dev/mapper/loop0p1
-    register: mapping_exists
+  
+  # SMELL needs a "when does not exist clause"
+  - name: create the mapper loop devices from the image file
+    ansible.builtin.command: "/usr/sbin/kpartx -asv {{ pi_os_image }}"
+    register: kpartx_results
 
-  - name: create the loop0  from the image file
-    ansible.builtin.command:
-      cmd: "/usr/sbin/kpartx -asv {{ pi_os_image }}"
-    register: kpartx_result
-    when: not mapping_exists.stat.exists
+     
+  # FACT I know it exists!!! fix
+  - set_fact:
+      loop_mappers: "{{ kpartx_results.stdout | regex_findall('(?<=add map )\\w*') }}"
+    when: kpartx_results.stdout is defined and kpartx_results.stdout | length > 0 
 
-  - name: kpartx results
-    ansible.builtin.debug:
-      var: kpartx_result
-      verbosity: 0
-    when: kpartx_result is defined
 
-  - name: Create the boot mount directory if it does not exist
+
+
+  # loop
+
+  - name: interating over images
+    debug:
+      msg: "/dev/mapper/{{item}}"     
+    loop: "{{  loop_mappers }}"
+  
+
+
+
+  - name: Create the mount directories if they does not exist
+    vars:
+      mnt_imgs: ['/tmp/pi_image/boot','/tmp/pi_image/rootfs']
     ansible.builtin.file:
-      path: "{{ pi_image_boot_mount }}"
+      path: "{{ item }}"
       state: directory
       mode: '0755'
+    loop: "{{  mnt_imgs }}"
 
-  - name: Mount boot partition
+  - name: Mount partition
+    vars:
+      mnt_imgs: ['/tmp/pi_image/boot','/tmp/pi_image/rootfs']
     ansible.posix.mount:
-      path: "{{ pi_image_boot_mount }}"
-      src: "/dev/mapper/loop0p1"
+      path: "{{ item.0 }}"
+      src: "/dev/mapper/{{ item.1 }}"
       fstype: auto
       state: mounted
-    #become: yes
-
-  - name: Create a rootfs if it does not exist
-    ansible.builtin.file:
-      path: "{{ pi_image_rootfs_mount }}"
-      state: directory
-      mode: '0755'
-
-  - name: Mount root partition
-    ansible.posix.mount:
-      path: "{{ pi_image_rootfs_mount }}"
-      src: "/dev/mapper/loop0p2"
-      fstype: auto
-      state: mounted
-    #become: yes
+    # with_together:
+    #   - mnt_imgs
+    #   - loop_mappers 
+    loop: "{{ mnt_imgs | zip(loop_mappers) | list }}"
 
   tags:
     - mount
